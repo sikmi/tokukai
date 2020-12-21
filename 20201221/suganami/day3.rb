@@ -14,8 +14,8 @@ file_lines_array.each_with_index do |line, i|
   end
 
   n_line_string = line * @n
-  @tree_count += 1 if n_line_string[@n] == '#'
-  @blank_count += 1 if n_line_string[@n] == '.'
+  @tree_count += 1 if n_line_string[x] == '#'
+  @blank_count += 1 if n_line_string[x] == '.'
 end
 
 pp "total count: #{depth}"
