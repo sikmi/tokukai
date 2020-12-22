@@ -33,12 +33,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     numbers.sort();
     let mut result: Option<usize> = None;
     let mut remains = numbers[1..].to_vec();
-    for index in 1..numbers.len() - 1 {
-        let number = remains[index];
-        let slice = remains
-            .iter()
-            .filter_map(|r| if *r != number { Some(*r) } else { None })
-            .collect::<Vec<usize>>();
+    for _ in 1..numbers.len() - 1 {
+        if remains.len() == 0 {
+            break;
+        }
+        let number = remains[0];
+        let slice = remains[1..].to_vec();
         result = mul_of_sum(2020, number, &slice, None);
         if result.is_some() {
             break;
