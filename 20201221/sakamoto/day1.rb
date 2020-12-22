@@ -41,7 +41,6 @@ class SolveDay1
   end
 end
 
-
-
+# 取得する要素が4個、5個、、となっていった場合にも使いまわせる仕様になってないのがなんだかなあと思っている。
 SolveDay1.new.part1
 SolveDay1.new.part2
