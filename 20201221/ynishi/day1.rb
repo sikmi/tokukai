@@ -2,17 +2,16 @@
 # cat day1.data | ruby day1.rb
 nums = readlines.map(&:to_i)
 
-# part1
-puts nums.combination(2).find_all {|x, y|
-  x + y == 2020
-}.map{|x, y|
-  x * y
-}.join("\n")
+def day1(nums, size)
+  nums.combination(size).find_all {|ary|
+    ary.sum == 2020
+  }.map{|ary|
+    ary.inject(:*)
+  }.join("\n")
+end
 
+# part1
+puts day1(nums, 2)
 
 # part2
-puts nums.combination(3).find_all {|x, y, z|
-  x + y + z == 2020
-}.map{|x, y, z|
-  x * y * z
-}.join("\n")
+puts day1(nums, 3)

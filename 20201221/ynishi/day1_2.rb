@@ -21,16 +21,16 @@ end
 
 nums = readlines.map(&:to_i)
 
+def day1(nums, size)
+  my_combination(nums, size).find_all {|ary|
+    ary.sum == 2020
+  }.map{|ary|
+    ary.inject(:*)
+  }.join("\n")
+end
+
 # part1
-puts my_combination(nums, 2).find_all {|x, y|
-  x + y == 2020
-}.map{|x, y|
-  x * y
-}.join("\n")
+puts day1(nums, 2)
 
 # part2
-puts my_combination(nums, 3).find_all {|x, y, z|
-  x + y + z == 2020
-}.map{|x, y, z|
-  x * y * z
-}.join("\n")
+puts day1(nums, 3)
