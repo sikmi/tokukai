@@ -3,6 +3,9 @@ use std::fs;
 use std::str::FromStr;
 
 fn mul_of_sum(s: usize, n: usize, ns: &[usize], previous: Option<usize>) -> Option<usize> {
+    if n > s {
+        return None;
+    }
     let pivot = (ns.len() as f32 / 2.0 as f32).ceil() as usize;
     let pivot = min(&ns.len() - 1, pivot);
     if let Some(prev) = previous {
