@@ -1,3 +1,6 @@
+require 'benchmark'
+
+
 def text_match_char?(text: '', target_char: '', overflow_index: 0)
   index = overflow_index % text.length
   text[index] == target_char
@@ -28,15 +31,26 @@ def async_main()
   file_lines_array.count.times do |_|
     count += 1 if Ractor.select(*workers)[1]
   end
-  pp count
+  count
 end
 
 TARGET_CHAR = '#'
 EACH_RIGHT_STEPS = 3
 
-def text_match_char?(text: '', target_char: '', overflow_index: 0)
-  index = overflow_index % text.length
-  text[index] == target_char
+def main()
+  file_lines_array = IO.readlines('day3.txt', chomp: true)
+
+  file_lines_array.filter_map.with_index do |line, i|
+    text_match_char?(
+      text: line,
+      target_char: TARGET_CHAR,
+      overflow_index: EACH_RIGHT_STEPS * i
+    )
+  end.count
 end
 
-async_main()
+
+Benchmark.bm do |x|
+  x.report('sync'){ main() }
+  x.report('async'){ async_main() }
+end
