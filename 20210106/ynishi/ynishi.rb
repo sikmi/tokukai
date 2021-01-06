@@ -41,7 +41,7 @@ def good_passports(passports)
   end
 end
 
-def pipe?()
+def pipe?
   File.pipe?($stdin)
 end
 
