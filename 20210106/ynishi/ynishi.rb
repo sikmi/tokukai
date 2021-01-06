@@ -20,8 +20,7 @@ def load_passports(f=$stdin)
   }
 end
 
-def good?(passport)
-  required_keys = %w[
+REQUIRED_KEYS = %w[
     byr
     iyr
     eyr
@@ -29,10 +28,10 @@ def good?(passport)
     hcl
     ecl
     pid
-  ]
-
+]
+def good?(passport)
   # 必須のキーが全部あるhashならok
-  required_keys.all? do |k|
+  REQUIRED_KEYS.all? do |k|
     passport[k]
   end
 end
