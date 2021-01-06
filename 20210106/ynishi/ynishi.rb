@@ -36,7 +36,10 @@ def good_passports(passports)
   end
 end
 
-passports = load_passports(open('./data'))
+passports = open('./data') do |f|
+  load_passports(f)
+end
+
 good_items = good_passports(passports)
 
 p good_items.size
