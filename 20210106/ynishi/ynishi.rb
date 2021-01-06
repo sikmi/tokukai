@@ -1,5 +1,3 @@
-require 'pry-byebug'
-
 def load_passports(f=$stdin)
   # 一気に全部読んで空白行(連続した\n\n)で分けたものを加工していく
   val = f.read.split(/\n\n/).map {
