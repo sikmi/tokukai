@@ -21,13 +21,13 @@ def load_passports(f=$stdin)
 end
 
 REQUIRED_KEYS = %w[
-    byr
-    iyr
-    eyr
-    hgt
-    hcl
-    ecl
-    pid
+  byr
+  iyr
+  eyr
+  hgt
+  hcl
+  ecl
+  pid
 ]
 def good?(passport)
   # 必須のキーが全部あるhashならok
