@@ -30,7 +30,6 @@ def good?(passport)
     pid
   ]
 
-
   # 必須のキーが全部あるhashならok
   required_keys.all? do |k|
     passport[k]
