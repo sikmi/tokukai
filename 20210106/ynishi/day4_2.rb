@@ -80,10 +80,7 @@ def good_passports(passports)
 end
 
 def pipe?()
-  if File.pipe?(STDIN) || File.select([STDIN], [], [], 0) != nil then
-    return true
-  end
-  false
+  File.pipe?($stdin)
 end
 
 def input
