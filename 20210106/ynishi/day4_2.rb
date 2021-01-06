@@ -83,18 +83,18 @@ def pipe?()
   File.pipe?($stdin)
 end
 
-def input
+def input_stdin_or(file)
   if pipe?
     yield $stdin
   else
-    open('./data') do |f|
+    open(file) do |f|
       yield f
     end
   end
 end
 
 def main
-  passports = input do |f|
+  passports = input_stdin_or('./data') do |f|
     load_passports(f)
   end
 

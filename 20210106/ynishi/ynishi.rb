@@ -34,20 +34,6 @@ def good?(passport)
   end
 end
 
-def pipe?()
-  File.pipe?($stdin)
-end
-
-def input
-  if pipe?
-    yield $stdin
-  else
-    open('./data') do |f|
-      yield f
-    end
-  end
-end
-
 def good_passports(passports)
   # validなパスポートのみ抽出
   passports.find_all do |passport|
@@ -55,8 +41,22 @@ def good_passports(passports)
   end
 end
 
+def pipe?()
+  File.pipe?($stdin)
+end
+
+def input_stdin_or(file)
+  if pipe?
+    yield $stdin
+  else
+    open(file) do |f|
+      yield f
+    end
+  end
+end
+
 def main
-  passports = input do |f|
+  passports = input_stdin_or('./data') do |f|
     load_passports(f)
   end
 
