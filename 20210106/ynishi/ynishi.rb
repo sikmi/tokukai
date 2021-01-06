@@ -38,7 +38,7 @@ end
 
 def good_passports(passports)
   # validなパスポートのみ抽出
-  passports.filter_map do |passport|
+  passports.find_all do |passport|
     good?(passport)
   end
 end
