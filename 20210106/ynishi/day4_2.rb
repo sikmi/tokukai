@@ -79,8 +79,8 @@ def good_passports(passports)
   end
 end
 
-def pipe?
-  File.pipe?($stdin)
+def pipe?(stream = $stdin)
+  File.pipe?(stream)
 end
 
 def input_stdin_or(file)
