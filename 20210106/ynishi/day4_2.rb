@@ -79,8 +79,25 @@ def good_passports(passports)
   end
 end
 
+def pipe?()
+  if File.pipe?(STDIN) || File.select([STDIN], [], [], 0) != nil then
+    return true
+  end
+  false
+end
+
+def input
+  if pipe?
+    yield $stdin
+  else
+    open('./data') do |f|
+      yield f
+    end
+  end
+end
+
 def main
-  passports = open('./data') do |f|
+  passports = input do |f|
     load_passports(f)
   end
 
