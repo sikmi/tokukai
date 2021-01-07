@@ -15,7 +15,7 @@ maintainer:          yoshitsugu@sikmi.com
 -- category:
 build-type:          Simple
 
-executable yoshitsugu-day4
+executable day4
   main-is:             Main.hs
   -- other-modules:
   -- other-extensions:
@@ -23,5 +23,25 @@ executable yoshitsugu-day4
       base >=4.14 && <4.15
     , split
     , text
+  -- hs-source-dirs:
+  default-language:    Haskell2010
+
+executable day21
+  main-is:             Day21.hs
+  -- other-modules:
+  -- other-extensions:
+  build-depends:
+      base >=4.14 && <4.15
+    , split
+  -- hs-source-dirs:
+  default-language:    Haskell2010
+
+executable day22
+  main-is:             Day22.hs
+  -- other-modules:
+  -- other-extensions:
+  build-depends:
+      base >=4.14 && <4.15
+    , split
   -- hs-source-dirs:
   default-language:    Haskell2010
