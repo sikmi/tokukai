@@ -7,12 +7,11 @@ def main
   file_lines_array = IO.readlines('day4.txt', chomp: true)
   passport_array = []
 
-  f = File.open("day4.txt", mode = "rt"){|f|
-    f.each_line(rs=""){|line|
-      passport_array << line.chomp.gsub("\n", ' ').strip
-    }
-  }
-
+  File.open('day4.txt', mode = 'r') do |f|
+    f.each_line(rs="\n\n") do |line|
+      passport_array << line.gsub("\n", ' ').chomp
+    end
+  end
   passport_array.filter { |passport| valid_passpord_keys?(passport) }.count
 end
 
