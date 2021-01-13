@@ -18,9 +18,6 @@ def load_addresses(f)
     line.chomp.chars.map(&:to_sym)
   end
 end
-# 0 1 2 3 4 5 6 7
-# from = 6
-# to   = 7
 
 def to_row(parts)
   bin_search(parts, 0, 127)
