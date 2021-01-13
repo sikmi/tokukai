@@ -32,7 +32,7 @@ end
 
 def bin_search(parts, from, to)
   # p [:from_to, from, to]
-  parts[0..-1].each do |dir|
+  parts.each do |dir|
     case dir
     when :low
       to  -= (to - from) / 2 + 1
@@ -43,14 +43,7 @@ def bin_search(parts, from, to)
     end
     # p [:from_to_dir, dir, from, to]
   end
-
-  # p [:from_to, from, to]
-  case parts.last
-  when :low
-    from
-  when :high
-    to
-  end
+  from
 end
 
 def normalize_row_parts(parts)
@@ -83,7 +76,7 @@ def calc_positions(addresses)
   # p [:addresses, addresses]
   addresses.map do |addr|
     row_parts = normalize_row_parts(addr[0 ... 7])
-    col_parts = normalize_col_parts(addr[7 ... -1])
+    col_parts = normalize_col_parts(addr[7 .. -1])
 
     # p [:addr, addr]
     # p [:row, row_parts]
