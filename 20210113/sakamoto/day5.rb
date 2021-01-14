@@ -5,7 +5,7 @@ ids = []
 
 File.open(File.dirname(__FILE__) + '/day5.txt') do |f|
   # １行毎を要素として配列化
-  lines = f.readlines.map {|l| l.chop}
+  lines = f.readlines.map {|l| l.chomp}
   lines.each do|line|
     # 初期値のセット
     thisrows = rows
@@ -25,9 +25,11 @@ File.open(File.dirname(__FILE__) + '/day5.txt') do |f|
         thiscols = thiscols.slice((thiscols.size/2)..thiscols.size)
       end
       # 特定した座席からIDを計算し、代入
-      ids << thisrows[0] * 8 + thiscols[0]
+
     end
+    ids << thisrows[0] * 8 + thiscols[0]
   end
   # 最大値を表示
+  p ids.length
   p ids.max
 end
