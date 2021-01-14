@@ -25,4 +25,4 @@ main = do
   file <- getContents
   let seatIds = map (seatId . seatPosition (0, 127, 0, 7)) $ lines file
   print . maximum $ seatIds
-  print . mySeatId $ sort [s | s <- seatIds, s /= maximum seatIds || s /= minimum seatIds]
+  print . mySeatId $ sort seatIds
