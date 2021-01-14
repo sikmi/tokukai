@@ -7,7 +7,8 @@ def input_stdin_or(file)
     yield $stdin
   else
     open(file) do |f|
-      yield f end
+      yield f
+    end
   end
 end
 
