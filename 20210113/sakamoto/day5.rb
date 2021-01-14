@@ -30,6 +30,16 @@ File.open(File.dirname(__FILE__) + '/day5.txt') do |f|
     ids << thisrows[0] * 8 + thiscols[0]
   end
   # 最大値を表示
-  p ids.length
   p ids.max
 end
+
+def mysheet_search(ary)
+  ary.sort!
+  ary.each do |a|
+    next if ary.include?(a+1)
+    p a+1
+    return
+  end
+end
+
+mysheet_search(ids)
