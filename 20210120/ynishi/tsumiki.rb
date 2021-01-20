@@ -9,7 +9,7 @@ end
 def dump_aquarium(aquarium, waters)
   max = aquarium.max
   graph = aquarium.zip(waters).map { |jimen, mizu|
-    (["*"] * jimen) + (["."] * mizu) + ([" "] * (max - (jimen + mizu)))
+    (["*"] * jimen) + (["X"] * mizu) + ([" "] * (max - (jimen + mizu)))
   }
 
   graph.map(&:reverse).transpose.map {|r| r.join(" ")}.join("\n")
@@ -17,12 +17,13 @@ end
 
 def solve(str)
   aquarium = load_aquarium(str)
-  if aquarium.size < 3
-    return 0
-  end
-
   # 各列に溜まっている水のマスの個数
   waters = Array.new(aquarium.size, 0)
+
+  if aquarium.size < 3
+    puts dump_aquarium(aquarium, waters)
+    return 0
+  end
 
   bottom = 0
   prev = top = aquarium[0]
@@ -61,7 +62,6 @@ def solve(str)
   end
 
   puts dump_aquarium(aquarium, waters)
-  puts "------------------------------------------------------------------------------------------------------------"
 
   waters.sum
 end
@@ -69,6 +69,7 @@ end
 def test(q, expected)
   actual = solve(q).to_s
   puts actual
+  puts "------------------------------------------------------------------------------------------------------------"
   unless actual == expected
     puts "q: #{q}, expected: #{expected}, but #{actual}"
   end
