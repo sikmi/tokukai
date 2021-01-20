@@ -17,5 +17,3 @@ def main
   }
   passport_array.filter { |passport| valid_passpord_keys?(passport) }.count
 end
-
-p main
