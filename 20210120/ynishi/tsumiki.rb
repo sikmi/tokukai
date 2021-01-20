@@ -6,6 +6,15 @@ def load_aquarium(str)
   str.chars.map(&:to_i)
 end
 
+def dump_aquarium(aquarium, waters)
+  max = aquarium.max
+  graph = aquarium.zip(waters).map { |jimen, mizu|
+    (["*"] * jimen) + (["."] * mizu) + ([" "] * (max - (jimen + mizu)))
+  }
+
+  graph.map(&:reverse).transpose.map {|r| r.join(" ")}.join("\n")
+end
+
 def solve(str)
   aquarium = load_aquarium(str)
   if aquarium.size < 3
@@ -50,11 +59,16 @@ def solve(str)
     # p [:waters, dump_waters(waters)]
     prev = cur
   end
+
+  puts dump_aquarium(aquarium, waters)
+  puts "------------------------------------------------------------------------------------------------------------"
+
   waters.sum
 end
 
 def test(q, expected)
   actual = solve(q).to_s
+  puts actual
   unless actual == expected
     puts "q: #{q}, expected: #{expected}, but #{actual}"
   end
