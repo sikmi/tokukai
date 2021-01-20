@@ -9,19 +9,19 @@ waterHeight input h r
   | all snd r = map fst r
   | otherwise =
     let -- 現状仮定している水位以上の高さのセルはTrueにする
-        r' = map (\(i, b) -> (i, h <= i)) r
+        r' = map (\(rHeight, rChecked) -> (rHeight, h <= rHeight)) r
         -- Trueのやつのindexをとってくる
-        ri = map snd $ filter (snd . fst) $ zip r' [0 ..]
+        ris = map snd $ filter (snd . fst) $ zip r' [0 ..]
         -- Trueのindexを両端として、挟んでいる領域があればTrueにしていく
-        checkedHeights = check r' ri
+        checkedHeights = check r' ris
      in waterHeight input (h - 1) checkedHeights
   where
     check :: [(Int, Bool)] -> [Int] -> [(Int, Bool)]
-    check r' [] = r'
-    check r' [e] = r'
-    check r' (s : e : rs)
-      | notLeakedRegion r' s e = check (confirmHeight (minimumOfEnds r' s e) s e $ zip r' [0 ..]) (e : rs)
-      | otherwise = check r' (e : rs)
+    check r [] = r
+    check r [e] = r
+    check r (s : e : is)
+      | notLeakedRegion r s e = check (confirmHeight (minimumOfEnds r s e) s e $ zip r [0 ..]) (e : is)
+      | otherwise = check r (e : is)
 
     -- 間に高さ0がなければ水が溜められる
     notLeakedRegion :: [(Int, Bool)] -> Int -> Int -> Bool
@@ -49,14 +49,16 @@ countWater :: [Int] -> [Int] -> Int
 countWater h l = sum $ zipWith (-) h l
 
 test :: String -> String -> IO ()
-test input answer = do
-  let line = map digitToInt input
-  let result = zip line (repeat False)
-  let heights = waterHeight line (maximum line) result
+test input correctAnswer = do
+  let inputInt = map digitToInt input
+  let result = zip inputInt (repeat False)
+  let heights = waterHeight inputInt (maximum inputInt) result
+  let answer = countWater heights inputInt
+
   putStr $ "test " ++ input ++ " => "
-  if countWater heights line == read answer
-    then putStrLn $ answer ++ " OK"
-    else putStrLn $ answer ++ "!! NG !!"
+  if countWater heights inputInt == read correctAnswer
+    then putStrLn $ (show answer) ++ " OK"
+    else putStrLn $ (show answer) ++ "!! NG !!"
 
 main :: IO ()
 main = do
