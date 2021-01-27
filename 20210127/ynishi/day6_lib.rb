@@ -13,9 +13,7 @@ def input_stdin_or(file)
 end
 
 def load_groups(f)
-  f.read.split("\n\n").map do |block|
-    block
-  end
+  f.read.split("\n\n")
 end
 
 class Group
