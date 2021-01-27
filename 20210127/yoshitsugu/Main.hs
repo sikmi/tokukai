@@ -2,7 +2,6 @@ module Main where
 
 import Data.List (foldl', intersect, nub)
 import Data.List.Split (splitOn)
-import Debug.Trace (trace)
 
 countAnyMemberYes :: String -> Int
 countAnyMemberYes = length . nub . filter (/= '\n')
