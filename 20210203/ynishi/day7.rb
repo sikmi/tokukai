@@ -14,6 +14,9 @@ def input_stdin_or(file)
   end
 end
 
+# bag_a => [[1, bag_b], [2, bag_c]]
+# bag_b => [[2, bag_d]]
+# bag_c => [[2, bag_e]]
 def load_bag_info
   input_stdin_or("./day7.dat") do |f|
     f.readlines.map(&:chomp).map do |line|
@@ -34,11 +37,11 @@ def load_bag_info
 end
 
 def count_parents(bag, relations)
-  result = relations[bag] + relations[bag].flat_map do |b|
+  relations[bag] + relations[bag].flat_map do |b|
     count_parents(b, relations)
   end
-  result
 end
+
 def main
   child_to_parents = Hash.new do |h, k|
     h[k] = []
