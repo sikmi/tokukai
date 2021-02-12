@@ -10,11 +10,8 @@ end
 ans = 0
 indexnum = 0
 
-10000.times do |i|
-  if lines[indexnum][2] == 1
-    puts ans
-    return
-  elsif lines[indexnum][0] == "acc"
+while lines[indexnum][2] == 0 do
+  if lines[indexnum][0] == "acc"
     ans += lines[indexnum][1]
     lines[indexnum][2] = 1
     indexnum += 1
@@ -27,6 +24,4 @@ indexnum = 0
   end
 end
 
-# sample = "test 038\n"
-
-# p sample.chomp!.split(' ')
+p ans
