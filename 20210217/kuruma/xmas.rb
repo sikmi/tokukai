@@ -28,7 +28,7 @@ class Xmas
 
     # preamble指定がseedと同じ時は検証済としてvaildに
     def valid?
-      @seed.length == @preamble_length
+      @seed.length <= @start_number
     end
 
     # 最初の1つをチェックする
