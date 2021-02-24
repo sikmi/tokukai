@@ -21,16 +21,6 @@ def read_data
   nums
 end
 
-def check_diffs(current, val)
-  (1 .. 3).each do |d|
-    if current + d == val
-      return d
-    end
-  end
-  # 1-3いずれかでマッチするはずなので、ここにきたらエラー
-  raise "invalid state"
-end
-
 # 0 1 2 3 6
 # n(6) = n(3)
 # n(3) = n(2) + n(1) + n(0)
