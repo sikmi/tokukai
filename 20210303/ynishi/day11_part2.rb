@@ -32,6 +32,9 @@ end
 def dump_board(board)
   puts board_to_s(board)
 end
+def dump_counts(counts)
+  puts counts.map(&:join).join("\n")
+end
 
 def build_data(f)
   f.readlines.map(&:chomp).map do |line|
@@ -81,8 +84,11 @@ def count_occupied_left_to_right(board, counts)
     base = 0
     (0 .. max_col).each do |c|
       if board[r][c] == :occupied
-        (base ... c).each do |i|
+        (c - 1).downto(base) do |i|
           counts[r][i] += 1
+          if board[r][i] == :empty
+            break
+          end
         end
         base = c
       end
@@ -99,6 +105,9 @@ def count_occupied_right_to_left(board, counts)
       if board[r][c] == :occupied
         (c + 1 .. base).each do |i|
           counts[r][i] += 1
+          if board[r][i] == :empty
+            break
+          end
         end
         base = c
       end
@@ -114,8 +123,11 @@ def count_occupied_up_to_down(board, counts)
     base = 0
     (0 .. max_row).each do |r|
       if board[r][c] == :occupied
-        (base ... r).each do |i|
+        (r - 1).downto(base) do |i|
           counts[i][c] += 1
+          if board[i][c] == :empty
+            break
+          end
         end
         base = r
       end
@@ -132,6 +144,9 @@ def count_occupied_down_to_up(board, counts)
       if board[r][c] == :occupied
         (r + 1 .. base).each do |i|
           counts[i][c] += 1
+          if board[i][c] == :empty
+            break
+          end
         end
         base = r
       end
@@ -143,7 +158,8 @@ def count_occupied_right_up(board, counts)
   max_row, max_col = max_row_col(board)
 
   dir = [-1, 1]
- 
+  reverse_dir = dir.map{|e| -e}
+
   left = -max_row + 1
   right = max_col - 1
 
@@ -154,13 +170,24 @@ def count_occupied_right_up(board, counts)
       r, c = i
       if 0 <= c && c <= max_col
         if board[r][c] == :occupied
-          j = base
-          while j != i
+          j = i.zip(reverse_dir).map(&:sum)
+          base_r, base_c = base
+          loop do
             r2, c2 = j
+            #p [:j, j, base, dir, reverse_dir]
+            if base_r < r2 || base_c > c2
+              break
+            end
             if 0 <= c2 && c2 <= max_col
               counts[r2][c2] += 1
+              if board[r2][c2] == :empty
+                break
+              end
             end
-            j = j.zip(dir).map(&:sum)
+            if j == base
+              break
+            end
+            j = j.zip(reverse_dir).map(&:sum)
           end
           base = [r, c]
         end
@@ -174,6 +201,7 @@ def count_occupied_left_down(board, counts)
   max_row, max_col = max_row_col(board)
 
   dir = [1, -1]
+  reverse_dir = dir.map{|e| -e}
 
   left = 1
   right = max_col + max_row - 1
@@ -185,13 +213,23 @@ def count_occupied_left_down(board, counts)
       r, c = i
       if 0 <= c && c <= max_col
         if board[r][c] == :occupied
-          j = base
-          while j != i
+          j = i.zip(reverse_dir).map(&:sum)
+          base_r, base_c = base
+          loop do
             r2, c2 = j
+            if base_r > r2 || base_c < c2
+              break
+            end
             if 0 <= c2 && c2 <= max_col
               counts[r2][c2] += 1
+              if board[r2][c2] == :empty
+                break
+              end
             end
-            j = j.zip(dir).map(&:sum)
+            if j == base
+              break
+            end
+            j = j.zip(reverse_dir).map(&:sum)
           end
           base = [r, c]
         end
@@ -205,7 +243,8 @@ def count_occupied_right_down(board, counts)
   max_row, max_col = max_row_col(board)
 
   dir = [1, 1]
- 
+  reverse_dir = dir.map{|e| -e}
+
   left = -max_row + 1
   right = max_col - 1
 
@@ -216,13 +255,23 @@ def count_occupied_right_down(board, counts)
       r, c = i
       if 0 <= c && c <= max_col
         if board[r][c] == :occupied
-          j = base
-          while j != i
+          j = i.zip(reverse_dir).map(&:sum)
+          base_r, base_c = base
+          loop do
             r2, c2 = j
+            if base_r > r2 || base_c > c2
+              break
+            end
             if 0 <= c2 && c2 <= max_col
               counts[r2][c2] += 1
+              if board[r2][c2] == :empty
+                break
+              end
             end
-            j = j.zip(dir).map(&:sum)
+            if j == base
+              break
+            end
+            j = j.zip(reverse_dir).map(&:sum)
           end
           base = [r, c]
         end
@@ -236,6 +285,7 @@ def count_occupied_left_up(board, counts)
   max_row, max_col = max_row_col(board)
 
   dir = [-1, -1]
+  reverse_dir = dir.map{|e| -e}
 
   left = 1
   right = max_col + max_row - 1
@@ -247,13 +297,23 @@ def count_occupied_left_up(board, counts)
       r, c = i
       if 0 <= c && c <= max_col
         if board[r][c] == :occupied
-          j = base
-          while j != i
+          j = i.zip(reverse_dir).map(&:sum)
+          base_r, base_c = base
+          loop do
             r2, c2 = j
+            if base_r < r2 || base_c < c2
+              break
+            end
             if 0 <= c2 && c2 <= max_col
               counts[r2][c2] += 1
+              if board[r2][c2] == :empty
+                break
+              end
             end
-            j = j.zip(dir).map(&:sum)
+            if j == base
+              break
+            end
+            j = j.zip(reverse_dir).map(&:sum)
           end
           base = [r, c]
         end
@@ -263,8 +323,79 @@ def count_occupied_left_up(board, counts)
   end
 end
 
-def main
-  board = read_data
+# 全部の座標をyieldする
+def each_rc(board)
+  return enum_for(:each_rc, board) unless block_given?
+
+  max_row, max_col = max_row_col(board)
+  (0 .. max_row).each do |r|
+    (0 .. max_col).each do |c|
+      yield r, c
+    end
+  end
 end
 
-main
+def check_happou_all_cells(b, c)
+  count_occupied_right_to_left(b, c)
+  count_occupied_left_to_right(b, c)
+  count_occupied_up_to_down(b, c)
+  count_occupied_down_to_up(b, c)
+  count_occupied_right_up(b, c)
+  count_occupied_left_down(b, c)
+  count_occupied_right_down(b, c)
+  count_occupied_left_up(b, c)
+end
+
+def inc_generation(board)
+  next_generation = copy_board(board)
+  counts = create_counts_array(next_generation)
+
+  check_happou_all_cells(board, counts)
+  each_rc(board).each do |r, c|
+    case board[r][c]
+    when :empty
+      # ルール1 今emptyのとき、八方が全部occupiedならoccupiedになる
+      if counts[r][c] == 0
+        next_generation[r][c] = :occupied
+      end
+    when :occupied
+      # ルール2 今occupiedのとき、周りが5つ以上occupiedならemptyになる
+      if counts[r][c] >= 5
+        next_generation[r][c] = :empty
+      end
+    end
+  end
+
+  # [next_generation, counts]
+  next_generation
+end
+
+def count_state(board, state)
+  each_rc(board).count { |r, c| board[r][c] == state }
+end
+
+def count_occupied(board)
+  count_state(board, :occupied)
+end
+
+def main
+  board = read_data
+
+  # dump_board(board)
+  prev = nil
+  generation = 0
+  while prev != board
+    prev = copy_board(board)
+    board = inc_generation(board)
+
+    # puts "--------------"
+    # dump_board(board)
+    generation += 1
+  end
+
+  puts count_occupied(board)
+end
+
+if $0 == __FILE__
+  main
+end
