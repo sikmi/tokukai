@@ -130,32 +130,11 @@ class Rotation < Action
   end
 
   def next(pos)
-    case pos.dir
-    when :north
-      pos.move(
-        east: 0,
-        north: 0,
-        dir: rotate(:north)
-      )
-    when :south
-      pos.move(
-        east: 0,
-        north: 0,
-        dir: rotate(:south)
-      )
-    when :east
-      pos.move(
-        east: 0,
-        north: 0,
-        dir: rotate(:east)
-      )
-    when :west
-      pos.move(
-        east: 0,
-        north: 0,
-        dir: rotate(:west)
-      )
-    end
+    pos.move(
+      east: 0,
+      north: 0,
+      dir: rotate(pos.dir)
+    )
   end
 end
 
