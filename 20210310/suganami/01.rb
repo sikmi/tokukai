@@ -69,8 +69,8 @@ def main
   end
 
   pp point.x
-  point.y,
-  point.manhattan_distance
+  pp point.y
+  pp point.manhattan_distance
 end
 
 main()
