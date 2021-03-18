@@ -52,12 +52,28 @@ solve n ids =
       (maxBound, 0)
       ids
 
+extgcd :: Int -> Int -> (Int, Int)
+extgcd a 0 = (1, 0)
+extgcd a b =
+  let (c, d) = a `divMod` b
+      (e, f) = extgcd b d
+   in (f, e - c * f)
+
 solve2 :: Int -> U.Vector Int -> Int
 solve2 n ids =
-  let ss = U.fromList . sortOn ((* (-1)) . fst) . U.toList $ getOffsets ids
-   in runST $ do
-        vs <- U.thaw $ U.map (\s -> (fst s, snd s, fst s, 1)) ss
-        loop (U.length ss) vs
+  let ss = getOffsets ids
+   in fst $
+        U.foldl'
+          ( \(r, m) s ->
+              let (p, q) = extgcd m (fst s)
+                  d = m * p + q * fst s
+                  t = (snd s - r) `div` d * p `mod` (fst s `div` d)
+               in if (snd s - r) `mod` d /= 0
+                    then (0, -1)
+                    else (r + m * t, m * fst s `div` d)
+          )
+          (0, 1)
+          ss
   where
     getOffsets :: U.Vector Int -> U.Vector (Int, Int)
     getOffsets ids = U.create $ do
@@ -67,41 +83,13 @@ solve2 n ids =
             if bid /= 0
               then do
                 UM.unsafeWrite vs n (bid, i)
-                return (i + 1, n + 1)
+                return (i - 1, n + 1)
               else do
-                return (i + 1, n)
+                return (i - 1, n)
         )
         (0, 0)
         ids
       return vs
-
-    loop :: Int -> UM.MVector s (Int, Int, Int, Int) -> ST s Int
-    loop n vs = do
-      v <- f 0 n vs
-      if v > 0
-        then return v
-        else do
-          (v0, o0, t0, n0) <- UM.unsafeRead vs 0
-          UM.unsafeWrite vs 0 (v0, o0, t0 + v0, n0 + 1)
-          loop n vs
-
-    f :: Int -> Int -> UM.MVector s (Int, Int, Int, Int) -> ST s Int
-    f i vn vs
-      | i > (vn - 2) = return 0
-      | otherwise = do
-        (v1, o1, t1, n1) <- UM.unsafeRead vs i
-        (v2, o2, t2, n2) <- UM.unsafeRead vs (i + 1)
-        if
-            | (t1 - o1) == (t2 - o2) -> do
-              if i == vn - 2
-                then return (t2 - o2)
-                else f (i + 1) vn vs
-            | (t1 - o1) > (t2 - o2) -> do
-              if (t1 - o1) > (t2 - o2 + 10000)
-                then UM.unsafeWrite vs (i + 1) (v2, o2, ((t1 - o1) `div` v2) * v2, n2 + 1)
-                else UM.unsafeWrite vs (i + 1) (v2, o2, t2 + v2, n2 + 1)
-              f i vn vs
-            | otherwise -> return 0
 
     f1 :: (Int, Int, Int, Int) -> Int
     f1 (a, _, _, _) = a
