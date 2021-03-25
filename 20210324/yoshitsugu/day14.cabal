@@ -16,4 +16,5 @@ executable day14
     , mtl
     , primitive
     , parsec
+    , containers
   default-language:    Haskell2010
