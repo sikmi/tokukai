@@ -1,7 +1,7 @@
 @inputs = IO.readlines('input.txt')[0].split(',').map(&:to_i)
 
 def main
-  ((@inputs.length + 1)..30000000).each do |turn|
+  ((@inputs.length + 1)..2020).each do |turn|
     preview = @inputs.last
     preview_array = @inputs[0..-2]
 
