@@ -1,27 +1,7 @@
 @inputs = IO.readlines('input.txt')[0].split(',').map(&:to_i)
 
-# @memory = Hash.new(0)
-
-# def main
-#   @inputs.each.with_index(1) do |value, turn|
-#     @memory[value] = turn
-#   end
-
-#   start = @inputs.length + 1
-
-#   (start..2020).each do |turn|
-#     last = @inputs.last
-
-#     @inputs << @memory[last]  
-
-#     last = @inputs.last
-#   end 
-# end
-
-# main
-
 def main
-  ((@inputs.length + 1)..30000000).each do |turn|
+  ((@inputs.length + 1)..2020).each do |turn|
     preview = @inputs.last
     preview_array = @inputs[0..-2]
 
