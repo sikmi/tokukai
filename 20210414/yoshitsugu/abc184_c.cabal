@@ -1,0 +1,21 @@
+cabal-version:       2.4
+name:                abc184-c
+version:             0.1.0.0
+license:             MIT
+license-file:        LICENSE
+author:              yoshitsugu
+maintainer:          yoshitsugu@sikmi.com
+extra-source-files:  CHANGELOG.md
+
+executable abc184-c
+  main-is:             Main.hs
+  build-depends:       
+      base ^>= 4.14.1.0
+    , vector
+    , bytestring
+    , mtl
+    , primitive
+    , unordered-containers
+    , split
+    , parsec
+  default-language:    Haskell2010
