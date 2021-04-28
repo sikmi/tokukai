@@ -13,6 +13,11 @@ def input_stdin_or(file)
   end
 end
 
+# 普通の計算とちがって */のほうが優先度が低いので注意
+#
+# <expr>   ::= <term> [ ('*'|'/' ) <term> ]*
+# <term>   ::= <primary> [ ('+'|'-') <primary> ]*
+# <primary> ::= <number> | '(' <expr> ')'
 class CalcParser < Parslet::Parser
   root(:expr)
 
