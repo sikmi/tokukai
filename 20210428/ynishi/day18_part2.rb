@@ -65,7 +65,7 @@ end
 # 数値用クラス
 NumericNode = Struct.new(:value) do
   def eval
-    value.to_i
+    value
   end
 end
 
@@ -90,6 +90,7 @@ BinOpNode = Struct.new(:left, :op, :right, keyword_init: true) do
 end
 
 class CalcTransform < Parslet::Transform
+    # パーサは浮動小数点も大丈夫だが、day18は整数だけなので実際の計算時は整数で
   rule(number: simple(:x)) { NumericNode.new(x.to_i) }
   rule(left: simple(:x)) { x }
   rule(term: simple(:x)) { x }
