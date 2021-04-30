@@ -8,6 +8,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 import Control.Monad
+import Control.Monad.Combinators.Expr (Operator (..), makeExprParser)
 import Data.Functor.Identity (Identity)
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -22,18 +23,11 @@ data Expr = Mul Expr Expr | Add Expr Expr | Val Int deriving (Show, Eq)
 
 type Parser = Parsec Void Text
 
-sc :: Parser ()
-sc =
-  L.space
-    space1
-    (L.skipLineComment "//")
-    (L.skipBlockComment "/*" "*/")
-
 lexeme :: Parser a -> Parser a
-lexeme = L.lexeme sc
+lexeme = L.lexeme space
 
 symbol :: Text -> Parser Text
-symbol = L.symbol sc
+symbol = L.symbol space
 
 primary :: Int -> Parser Expr
 primary n =
@@ -41,6 +35,15 @@ primary n =
     number <- lexeme L.decimal
     return $ Val number
     <|> between (symbol "(") (symbol ")") (expr n)
+
+binary :: Text -> (a -> a -> a) -> Operator (ParsecT Void Text Identity) a
+binary name f = InfixL (f <$ symbol name)
+
+mulOp :: Operator (ParsecT Void Text Identity) Expr
+mulOp = binary "*" Mul
+
+addOp :: Operator (ParsecT Void Text Identity) Expr
+addOp = binary "+" Add
 
 chainl1 :: Parser Expr -> Parser (Expr -> Expr -> Expr) -> Parser Expr
 chainl1 p op = do
@@ -55,13 +58,13 @@ chainl1 p op = do
         <|> return x
 
 muladd :: Int -> Parser Expr
-muladd n = chainl1 (primary n) $ (Mul <$ symbol "*") <|> (Add <$ symbol "+")
+muladd n = makeExprParser (primary n) [[mulOp, addOp]] <?> "muladd"
 
 mul :: Int -> Parser Expr
-mul n = chainl1 (add n) (Mul <$ symbol "*")
+mul n = makeExprParser (add n) [[mulOp]] <?> "mul"
 
 add :: Int -> Parser Expr
-add n = chainl1 (primary n) (Add <$ symbol "+")
+add n = makeExprParser (primary n) [[addOp]] <?> "add"
 
 term :: Int -> Parser Expr
 term n = if n == 1 then muladd 1 else mul 2
