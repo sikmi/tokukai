@@ -29,12 +29,11 @@ lexeme = L.lexeme space
 symbol :: Text -> Parser Text
 symbol = L.symbol space
 
+brace :: ParsecT Void Text Identity a -> ParsecT Void Text Identity a
+brace = between (symbol "(") (symbol ")")
+
 primary :: Int -> Parser Expr
-primary n =
-  do
-    number <- lexeme L.decimal
-    return $ Val number
-    <|> between (symbol "(") (symbol ")") (expr n)
+primary n = Val <$> lexeme L.decimal <|> brace (expr n)
 
 binary :: Text -> (a -> a -> a) -> Operator (ParsecT Void Text Identity) a
 binary name f = InfixL (f <$ symbol name)
