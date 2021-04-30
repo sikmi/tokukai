@@ -23,6 +23,8 @@ data Expr = Mul Expr Expr | Add Expr Expr | Val Int deriving (Show, Eq)
 
 type Parser = Parsec Void Text
 
+data Q = Q1 | Q2
+
 lexeme :: Parser a -> Parser a
 lexeme = L.lexeme space
 
@@ -31,9 +33,6 @@ symbol = L.symbol space
 
 brace :: ParsecT Void Text Identity a -> ParsecT Void Text Identity a
 brace = between (symbol "(") (symbol ")")
-
-primary :: Int -> Parser Expr
-primary n = Val <$> lexeme L.decimal <|> brace (expr n)
 
 binary :: Text -> (a -> a -> a) -> Operator (ParsecT Void Text Identity) a
 binary name f = InfixL (f <$ symbol name)
@@ -44,24 +43,16 @@ mulOp = binary "*" Mul
 addOp :: Operator (ParsecT Void Text Identity) Expr
 addOp = binary "+" Add
 
-muladd :: Int -> Parser Expr
-muladd n = makeExprParser (primary n) [[mulOp, addOp]] <?> "muladd"
+term :: Q -> Parser Expr
+term q = Val <$> lexeme L.decimal <|> brace (expr q)
 
-mul :: Int -> Parser Expr
-mul n = makeExprParser (add n) [[mulOp]] <?> "mul"
+expr :: Q -> Parser Expr
+expr Q1 = makeExprParser (term Q1) [[mulOp, addOp]] <?> "expr"
+expr Q2 = makeExprParser (term Q2) [[addOp], [mulOp]] <?> "expr"
 
-add :: Int -> Parser Expr
-add n = makeExprParser (primary n) [[addOp]] <?> "add"
-
-term :: Int -> Parser Expr
-term n = if n == 1 then muladd 1 else mul 2
-
-expr :: Int -> Parser Expr
-expr = term
-
-parseInput :: Int -> Text -> Expr
-parseInput n input =
-  case parse (expr n) "" input of
+parseInput :: Q -> Text -> Expr
+parseInput q input =
+  case parse (expr q) "" input of
     Right s -> s
     Left e -> error $ "PARSE ERROR: " ++ errorBundlePretty e
 
@@ -77,7 +68,7 @@ solve (expr : exprs) = eval expr + solve exprs
 main :: IO ()
 main = do
   contents <- lines <$> getContents
-  let exprs1 = map (parseInput 1 . T.pack) contents
+  let exprs1 = map (parseInput Q1 . T.pack) contents
   print $ solve exprs1
-  let exprs2 = map (parseInput 2 . T.pack) contents
+  let exprs2 = map (parseInput Q2 . T.pack) contents
   print $ solve exprs2
