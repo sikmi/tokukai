@@ -45,18 +45,6 @@ mulOp = binary "*" Mul
 addOp :: Operator (ParsecT Void Text Identity) Expr
 addOp = binary "+" Add
 
-chainl1 :: Parser Expr -> Parser (Expr -> Expr -> Expr) -> Parser Expr
-chainl1 p op = do
-  x <- p
-  rest x
-  where
-    rest x =
-      do
-        f <- op
-        y <- p
-        rest (f x y)
-        <|> return x
-
 muladd :: Int -> Parser Expr
 muladd n = makeExprParser (primary n) [[mulOp, addOp]] <?> "muladd"
 
