@@ -19,6 +19,10 @@ def seq_rule(seq_str)
   }.join(" >> ")
 end
 
+def indent_rule(rule_code)
+  rule_code.lines.map { "  " + _1 }.join
+end
+
 def parslet_parser_generator(rule_str)
   rules = rule_str.lines.map(&:chomp).map do |line|
     rule, rule_body = line.split(":").map(&:strip)
@@ -49,10 +53,9 @@ def parslet_parser_generator(rule_str)
 
   <<~EOS
     class MyParser < Parslet::Parser
-    root(:r0)
+      root(:r0)
 
-    #{rules.join("\n")}
-
+    #{rules.map {|code| indent_rule(code) }.join}
     end
   EOS
 end
