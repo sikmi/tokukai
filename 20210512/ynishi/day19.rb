@@ -55,7 +55,7 @@ def parslet_parser_generator(rule_str)
     class MyParser < Parslet::Parser
       root(:r0)
 
-    #{rules.map {|code| indent_rule(code) }.join}
+    #{rules.map {|code| indent_rule(code) }.join("\n")}
     end
   EOS
 end
