@@ -12,6 +12,7 @@ import Control.Monad.Combinators.Expr (Operator (..), makeExprParser)
 import Data.Functor.Identity (Identity)
 import qualified Data.HashMap.Strict as HS
 import Data.List (foldl')
+import Data.List.NonEmpty (NonEmpty ((:|)))
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Void (Void)
@@ -41,41 +42,61 @@ seqParser rules [] = do
 seqParser rules (i : is) = do
   case HS.lookup i rules of
     Just (Or (Seq rs1) (Seq rs2)) ->
-      do
-        try $ do
-          t1 <- seqParser rules rs1
-          t2 <- seqParser rules is
-          return $ t1 `T.append` ("( r" `T.append` T.pack (show i) `T.append` ", " `T.append` t2 `T.append` " )")
+      try
+        ( do
+            s1 <- seqParser rules rs1
+            s2 <- seqParser rules is
+            return $ s1 `T.append` s2
+        )
         <|> ( do
-                t1 <- seqParser rules rs2
-                t2 <- seqParser rules is
-                return $ t1 `T.append` ("( r" `T.append` T.pack (show i) `T.append` ", " `T.append` t2 `T.append` " )")
+                s1 <- seqParser rules rs2
+                s2 <- seqParser rules is
+                return $ s1 `T.append` s2
             )
+    Just (Seq rs) -> do
+      s1 <- seqParser rules rs
+      s2 <- seqParser rules is
+      return $ s1 `T.append` s2
+    Just (Val c) -> do
+      c' <- MC.char c
+      s2 <- seqParser rules is
+      return $ T.cons c' s2
     _ -> do
-      t1 <- ruleParser rules i
-      t2 <- seqParser rules is
-      return $ t1 `T.append` ("( r" `T.append` T.pack (show i) `T.append` ", " `T.append` t2 `T.append` " )")
+      unexpected $ Label ('E' :| "rror at rule " ++ show i)
 
-orParser :: HS.HashMap Int P -> [Int] -> [Int] -> Parser Text
-orParser rules rs1 rs2 = do
-  try (seqParser rules rs1) <|> seqParser rules rs2
+-- orParser :: HS.HashMap Int P -> [Int] -> [Int] -> Parser Text
+-- orParser rules rs1 rs2 = do
+--   try (seqParser rules rs1) <|> seqParser rules rs2
 
 ruleParser :: HS.HashMap Int P -> Int -> Parser Text
 ruleParser rules i = do
   case HS.lookup i rules of
-    Just (Or (Seq rs1) (Seq rs2)) -> do
-      orParser rules rs1 rs2
-    Just (Or _ _) -> do
-      MC.char '@' -- 何もmatchしないダミー
-      return ""
     Just (Seq rs) -> do
       seqParser rules rs
     Just (Val c) -> do
-      c' <- MC.char c
-      return $ T.singleton c'
+      T.singleton <$> MC.char c
+    _ -> do
+      unexpected $ Label ('E' :| "rror at rule " ++ show i)
 
-solve :: HS.HashMap Int P -> [Text] -> Int
-solve rules input = length $ filter (runRuleParser (ruleParser rules 0 <* eof)) input
+-- rule42 を適用できるだけ適用してから開始する
+rule2Parser :: HS.HashMap Int P -> Int -> [Parser Text]
+rule2Parser rules n =
+  map
+    ( \i ->
+        do
+          try $ do
+            t1 <- seqParser rules [42 | _ <- [1 .. i]]
+            t2 <- seqParser rules [11]
+            eof
+            return $ t1 `T.append` t2
+    )
+    [1 .. n]
+
+solve :: Bool -> HS.HashMap Int P -> [Text] -> Int
+solve isQ1 rules input =
+  if isQ1
+    then length $ filter (runRuleParser (ruleParser rules 0 <* eof)) input
+    else length $ filter (\i -> any (`runRuleParser` i) (rule2Parser rules (length input))) input
 
 runRuleParser :: Parser Text -> Text -> Bool
 runRuleParser ruleParser input =
@@ -127,6 +148,6 @@ main = do
   let ruleLines = takeWhile (not . null) contents
   let inputLines = drop 1 $ dropWhile (not . null) contents
   let rules = HS.fromList . map (parseInput . T.pack) $ ruleLines
-  print . solve rules $ map T.pack inputLines
+  print . solve True rules $ map T.pack inputLines
   let rules2 = HS.insert 11 (Or (Seq [42, 31]) (Seq [42, 11, 31])) $ HS.insert 8 (Or (Seq [42]) (Seq [42, 8])) rules
-  print . solve rules2 $ map T.pack inputLines
+  print . solve False rules2 $ map T.pack inputLines
