@@ -42,21 +42,9 @@ seqParser rules [] = do
 seqParser rules (i : is) = do
   case HS.lookup i rules of
     Just (Or (Seq rs1) (Seq rs2)) ->
-      try
-        ( do
-            s1 <- seqParser rules rs1
-            s2 <- seqParser rules is
-            return $ s1 `T.append` s2
-        )
-        <|> ( do
-                s1 <- seqParser rules rs2
-                s2 <- seqParser rules is
-                return $ s1 `T.append` s2
-            )
-    Just (Seq rs) -> do
-      s1 <- seqParser rules rs
-      s2 <- seqParser rules is
-      return $ s1 `T.append` s2
+      try (seqParser rules (rs1 ++ is))
+        <|> seqParser rules (rs2 ++ is)
+    Just (Seq rs) -> seqParser rules (rs ++ is)
     Just (Val c) -> do
       c' <- MC.char c
       s2 <- seqParser rules is
@@ -92,11 +80,8 @@ rule2Parser rules n =
     )
     [1 .. n]
 
-solve :: Bool -> HS.HashMap Int P -> [Text] -> Int
-solve isQ1 rules input =
-  if isQ1
-    then length $ filter (runRuleParser (ruleParser rules 0 <* eof)) input
-    else length $ filter (\i -> any (`runRuleParser` i) (rule2Parser rules (length input))) input
+solve :: HS.HashMap Int P -> [Text] -> Int
+solve rules input = length $ filter (runRuleParser (ruleParser rules 0 <* eof)) input
 
 runRuleParser :: Parser Text -> Text -> Bool
 runRuleParser ruleParser input =
@@ -148,6 +133,6 @@ main = do
   let ruleLines = takeWhile (not . null) contents
   let inputLines = drop 1 $ dropWhile (not . null) contents
   let rules = HS.fromList . map (parseInput . T.pack) $ ruleLines
-  print . solve True rules $ map T.pack inputLines
+  print . solve rules $ map T.pack inputLines
   let rules2 = HS.insert 11 (Or (Seq [42, 31]) (Seq [42, 11, 31])) $ HS.insert 8 (Or (Seq [42]) (Seq [42, 8])) rules
-  print . solve False rules2 $ map T.pack inputLines
+  print . solve rules2 $ map T.pack inputLines
