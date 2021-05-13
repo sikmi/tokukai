@@ -52,10 +52,6 @@ seqParser rules (i : is) = do
     _ -> do
       unexpected $ Label ('E' :| "rror at rule " ++ show i)
 
--- orParser :: HS.HashMap Int P -> [Int] -> [Int] -> Parser Text
--- orParser rules rs1 rs2 = do
---   try (seqParser rules rs1) <|> seqParser rules rs2
-
 ruleParser :: HS.HashMap Int P -> Int -> Parser Text
 ruleParser rules i = do
   case HS.lookup i rules of
@@ -65,20 +61,6 @@ ruleParser rules i = do
       T.singleton <$> MC.char c
     _ -> do
       unexpected $ Label ('E' :| "rror at rule " ++ show i)
-
--- rule42 を適用できるだけ適用してから開始する
-rule2Parser :: HS.HashMap Int P -> Int -> [Parser Text]
-rule2Parser rules n =
-  map
-    ( \i ->
-        do
-          try $ do
-            t1 <- seqParser rules [42 | _ <- [1 .. i]]
-            t2 <- seqParser rules [11]
-            eof
-            return $ t1 `T.append` t2
-    )
-    [1 .. n]
 
 solve :: HS.HashMap Int P -> [Text] -> Int
 solve rules input = length $ filter (runRuleParser (ruleParser rules 0 <* eof)) input
