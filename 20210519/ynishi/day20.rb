@@ -182,10 +182,46 @@ def inc_rc(r, c, size)
   [r + 1, 0]
 end
 
+def dump_answer(result)
+  # binding.pry
+  # 各tileを組合せた正方形のサイズ
+  size = result.size
+
+  # 各tile内のsize(全部同じなので代表して、0, 0に入っているtileの列数で数える
+  tile_size = result[0][0][0].size
+
+  (0...size * tile_size).each do |r|
+
+    if r != 0 && r % tile_size == 0
+      sep = "-" * (tile_size * 2)
+      puts(([sep] * size).join("+"))
+    end
+
+    (0...size * tile_size).each do |c|
+      if c != 0 && c % tile_size == 0
+        print "|"
+      end
+
+      # 外側の正方形のouter row, outer colを計算して、どのtileか特定
+      outer_r = r / 10
+      outer_c = c / 10
+      tile = result[outer_r][outer_c][0]
+
+
+      # tile内での行、列を計算
+      rr = r % 10
+      cc = c % 10
+      print "#{tile[rr][cc]} "
+    end
+    puts
+  end
+end
+
 def main
   tiles = read_tiles
   result = solve(tiles)
   if result
+    dump_answer(result)
     size = result.size
     answer =
       tiles[result[0][0][1].first].no *
