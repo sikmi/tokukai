@@ -50,10 +50,12 @@ end
 
 def search(rules, allergen_to_rules, ingredient_to_allergen, allergens_to_ingredients)
   if allergens_to_ingredients.size == 0
-    p [:solved]
+    # 全部のアレルゲンについて調べたらその時点の 材料 => アレルゲンの情報で確定させる
     return ingredient_to_allergen
   else
     (a, ingredients), *rest = allergens_to_ingredients
+
+    #このアレルゲンaを持つ材料の候補ingredientsを順に調べて矛盾がでたらやり直す
     ingredients.each do |ing|
       unless ingredient_to_allergen[ing]
         if ok?(rules, allergen_to_rules, ingredient_to_allergen, ing, a)
@@ -77,6 +79,7 @@ def main
     h[k] = []
   end
 
+  # アレルゲンからそのアレルゲンが含まれているルールへのマップ
   allergen_to_rules = rules.inject(h) { |h, r|
     r.allergens.each do |a|
       h[a] << r
@@ -89,6 +92,7 @@ def main
     h[k] = []
   end
 
+  # アレルゲンから、そのアレルゲンを持つ可能性のある材料候補へのマップ
   allergens_to_ingredients = rules.inject(h2) { |h, r|
     h.tap do |h|
       r.allergens.each do |a|
@@ -102,6 +106,7 @@ def main
 
   # p allergens_to_ingredients
 
+  # 材料からアレルゲンのマップ(これを組み立てていく)
   ingredient_to_allergen = rules.flat_map {|r| r.ingredients}.uniq.inject({}) {|h, u| h.merge(u => nil)}
   # p ingredient_to_allergen
 
@@ -109,6 +114,7 @@ def main
   result = search(rules, allergen_to_rules, ingredient_to_allergen, allergens_to_ingredients)
   p [:result, result]
   p [:result_fixed, result.select {|k, v| v}]
+
   count_base = rules.flat_map do |r|
     r.ingredients
   end
