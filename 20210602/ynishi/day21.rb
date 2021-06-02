@@ -123,6 +123,10 @@ def main
   # p [:targets, targets]
   # p [:count_base, count_base]
   p count_base.count { |ing| targets.include?(ing) }
+
+  # part2
+  # アレルゲン確定原材料のうち、アレルゲンの辞書順でならべたときの原材料のカンマ区切り文字列
+  puts result.select {|k, v| v}.sort_by {|k, v| v}.map(&:first).join(",")
 end
 
 main
