@@ -12,9 +12,10 @@ import Control.Monad.Combinators.Expr (Operator (..), makeExprParser)
 import Data.Functor.Identity (Identity)
 import qualified Data.HashMap.Strict as HS
 import qualified Data.HashSet as S
-import Data.List (foldl', intersect, (\\))
+import Data.List (foldl', intercalate, intersect, intersperse, sort, (\\))
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Data.List.Split (splitOn)
+import Data.Maybe (fromJust)
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Void (Void)
@@ -51,48 +52,55 @@ parseInput input =
 
 solve1 :: [([String], [String])] -> Int
 solve1 lines =
-  let m = solve1' lines HS.empty
+  let m = candidates lines HS.empty
    in countNotAllergens (concatMap fst lines) (map head $ HS.elems m)
+
+candidates :: [([String], [String])] -> HS.HashMap String [String] -> HS.HashMap String [String]
+candidates [] m = finalRound m
+candidates o@((is, as) : rs) m =
+  let fixedCount = length $ HS.keys $ HS.filter (\v -> length v == 1) m
+      h = getCandidates is as m
+      fixedCount2 = length $ HS.keys $ HS.filter (\v -> length v == 1) m
+   in if fixedCount /= fixedCount2
+        then candidates o h
+        else candidates rs h
+
+getCandidates :: [String] -> [String] -> HS.HashMap String [String] -> HS.HashMap String [String]
+getCandidates _ [] m = m
+getCandidates is (a : as) m =
+  case HS.lookup a m of
+    Just [b] -> getCandidates is as m
+    _ ->
+      let fixedValues = map head $ HS.elems $ HS.filter (\v -> length v == 1) m
+          nis = is \\ fixedValues
+       in getCandidates is as $ HS.insertWith intersect a nis m
+
+finalRound :: HS.HashMap String [String] -> HS.HashMap String [String]
+finalRound m =
+  let unfixeds = HS.filter (\v -> length v /= 1) m
+      unfixedKeys = HS.keys unfixeds
+   in if null unfixedKeys
+        then m
+        else sve2 unfixedKeys m
   where
-    solve1' :: [([String], [String])] -> HS.HashMap String [String] -> HS.HashMap String [String]
-    solve1' [] m = solve1Extra m
-    solve1' o@((is, as) : rs) m =
-      let fixedCount = length $ HS.keys $ HS.filter (\v -> length v == 1) m
-          h = solve1l is as m
-          fixedCount2 = length $ HS.keys $ HS.filter (\v -> length v == 1) m
-       in if fixedCount /= fixedCount2
-            then solve1' o h
-            else solve1' rs h
+    sve2 :: [String] -> HS.HashMap String [String] -> HS.HashMap String [String]
+    sve2 [] m = finalRound m
+    sve2 (k : ks) m =
+      let fixedValues = map head $ HS.elems $ HS.filter (\v -> length v == 1) m
+       in sve2 ks (HS.update (\vs -> Just (vs \\ fixedValues)) k m)
 
-    solve1l :: [String] -> [String] -> HS.HashMap String [String] -> HS.HashMap String [String]
-    solve1l _ [] m = m
-    solve1l is (a : as) m =
-      case HS.lookup a m of
-        Just [b] -> solve1l is as m
-        _ ->
-          let fixedValues = map head $ HS.elems $ HS.filter (\v -> length v == 1) m
-              nis = is \\ fixedValues
-           in solve1l is as $ HS.insertWith intersect a nis m
+countNotAllergens :: [String] -> [String] -> Int
+countNotAllergens ls as = length $ filter (`notElem` as) ls
 
-    solve1Extra :: HS.HashMap String [String] -> HS.HashMap String [String]
-    solve1Extra m =
-      let unfixeds = HS.filter (\v -> length v /= 1) m
-          unfixedKeys = HS.keys unfixeds
-       in if null unfixedKeys
-            then m
-            else sve2 unfixedKeys m
-      where
-        sve2 :: [String] -> HS.HashMap String [String] -> HS.HashMap String [String]
-        sve2 [] m = solve1Extra m
-        sve2 (k : ks) m =
-          let fixedValues = map head $ HS.elems $ HS.filter (\v -> length v == 1) m
-           in sve2 ks (HS.update (\vs -> Just (vs \\ fixedValues)) k m)
-
-    countNotAllergens :: [String] -> [String] -> Int
-    countNotAllergens ls as = length $ filter (`notElem` as) ls
+solve2 :: [([String], [String])] -> String
+solve2 lines =
+  let m = candidates lines HS.empty
+      sortedKeys = sort $ HS.keys m
+   in intercalate "," $ map (\k -> head . fromJust $ HS.lookup k m) sortedKeys
 
 main :: IO ()
 main = do
   contents <- getContents
   let parsedLines = map (parseInput . T.pack) . filter (not . null) $ splitOn "\n" contents
   print $ solve1 parsedLines
+  putStrLn $ solve2 parsedLines
