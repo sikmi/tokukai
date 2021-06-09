@@ -1,3 +1,5 @@
+require 'set'
+
 require 'pry-byebug'
 
 def pipe?(stream = $stdin)
@@ -50,13 +52,19 @@ class Deck
 end
 
 class Combat
+
   def initialize(decks)
     @decks = decks
+    @seen = Set.new
   end
 
   def do_round
-    p self
     while has_next_round?
+      state = @decks.map {|d| d.cards.dup}
+      if @seen.include?(state)
+        return @decks.first
+      end
+      @seen << state
       next_round
     end
 
@@ -65,6 +73,7 @@ class Combat
 
   def check_winner(cards)
     if recursive_battle?(cards)
+      # p :exec_recursive_battle
       winner = Combat.new(@decks.each_with_index.map { |d, i| d.copy_deck(cards.to_a[i][0])}).do_round
       _, winner_index = @decks.each_with_index.find {|d, _i| d.name == winner.name}
       cards.find {|_val, index| index == winner_index}
@@ -77,7 +86,6 @@ class Combat
     @decks.zip(cards).all? do |d, (val, _index)|
       d.recursive_battle?(val)
     end
-
   end
 
   def next_round
@@ -101,7 +109,7 @@ class Combat
 end
 
 def read_data
-  input_stdin_or("./day22_sample.dat") do |f|
+  input_stdin_or("./day22.dat") do |f|
     decks = f.read.split(/\n\n/).map do |deck_base|
       name, *cards = deck_base.lines(chomp: true)
       Deck.new(
@@ -119,7 +127,6 @@ def main
 
   combat.do_round
 
-  p combat
   p combat.winner.calc_points
 end
 
