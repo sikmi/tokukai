@@ -3,11 +3,12 @@ require 'set'
 
 class Node
   attr_reader :value
-  attr_accessor :next_node
+  attr_accessor :next_node, :prev_node
 
-  def initialize(value: nil, next_node: nil)
+  def initialize(value: nil, next_node: nil, prev_node: nil)
     @value = value
     @next_node = next_node
+    @prev_node = prev_node
   end
 end
 
@@ -22,8 +23,10 @@ class LinkedList
   def add(val)
     Node.new(value: val).tap do |n|
       @tail.next_node = n
+      n.prev_node = @tail
       @tail = n
       @tail.next_node = @head.next_node
+      @head.next_node.prev_node = n
     end
   end
 
@@ -34,13 +37,31 @@ class LinkedList
     end
   end
 
+  def reverse_each_one_cycle
+    reverse_each do |cur|
+      yield cur
+      return if cur == @head.next_node
+    end
+  end
+
   def each
     cur = @head
-    while cur.next_node
+   loop do
       yield cur.next_node
       cur = cur.next_node
     end
   end
+
+  def reverse_each
+    cur = @tail
+    yield @tail
+
+    loop do
+      yield cur.prev_node
+      cur = cur.prev_node
+    end
+  end
+
 end
 
 class Game
@@ -54,8 +75,12 @@ class Game
   end
 
   def run
-    100.times do |i|
-      # p [:move, i + 1, each_one_cycle(@cur).map {|c| c.value}]
+    1000_0000.times do |i|
+      # hoge = each_one_cycle(@cur).to_a
+      # p [:move, i + 1, hoge.map {|c| c.value}]
+      if i % 10000 == 0
+        p [:move, i]
+      end
       move
     end
 
@@ -77,7 +102,9 @@ class Game
 
   def add_picked_after_dest(dest, picked)
     after = dest.next_node
+
     dest.next_node = picked
+    picked.prev_node = dest
 
     # pickedの最後にafterをつなげる
     c = picked
@@ -86,6 +113,7 @@ class Game
     end
     # この時点でcがpickedの最終要素なので、その次にafterをつなげる
     c.next_node = after
+    after.prev_node = c
   end
 
   def pick(node, i)
@@ -98,28 +126,31 @@ class Game
 
     # ここでpick puするノードを飛ばして今の注文ノードからpick upした後のノードにつなぎ直す
     node.next_node = c.next_node
+    c.next_node.prev_node = node
 
     # で一旦pick upしたi個の要素を孤立させる(これはいらんかも)
     # これで、partial_topからnext_nodeがnilになるまでのリストがpick upしたリスト
     c.next_node = nil
+    partial_top.prev_node = nil
 
     partial_top
   end
 
   def search_dest(node, val, picked_nums)
-    # p [:search_dest]
-    last = node
     loop do
-      # p [:search, val]
-      c = node
-      loop do
-        # p [:search_checkx, c.value, c.value == val && !picked_nums.include?(val)]
-        return c if c.value == val && !picked_nums.include?(val)
-        break if c.next_node == last
-        c = c.next_node
-      end
-      val -= 1
       val = val <= 0 ? @max_value : val
+      if picked_nums.include?(val)
+        val -= 1
+      else
+        break
+      end
+    end
+    c = node
+    loop do
+      # p [:search_checkx, c.value, c.value == val && !picked_nums.include?(val)]
+      return c if c.value == val && !picked_nums.include?(val)
+      raise 'not found' if c.prev_node == node
+      c = c.prev_node
     end
   end
 
@@ -165,18 +196,38 @@ def input_stdin_or(file)
 end
 
 def read_data
-  input_stdin_or('day23_sample.dat') do |f|
+  ary = input_stdin_or('day23_sample.dat') do |f|
     f.read.chomp.chars.map(&:to_i)
   end
+
+  max_count = 100_0000
+  n = ary.max + 1
+  initial_size = ary.size
+  (max_count - initial_size).times do
+    ary << n
+    n += 1
+  end
+  ary
 end
 
 def main
   data = read_data
+  # p [:data, data]
   g = Game.new(data)
-  last_state = g.run
+  last_state = nil
+  # StackProf.run(mode: :cpu, out: './stackprof.dump') do
+    # まだアカンらしい・・・
+    last_state = g.run
+  #end
+
+  # _, index1 = last_state.each_with_index.find{|e, i| e == 1}
+  # puts last_state.rotate(index1).drop(1).join
+  # return
 
   _, index1 = last_state.each_with_index.find{|e, i| e == 1}
-  puts last_state.rotate(index1).drop(1).join
+  p last_state[index1 + 1]
+  p last_state[index1 + 2]
 end
 
+# require 'stackprof'
 main
