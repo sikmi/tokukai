@@ -54,9 +54,9 @@ def main
 
   puts move_list.map {|moves|
     move(moves)
-  }.group_by {|e|
-    e
-  }.map {|_, values|
+  }.group_by(
+    &:itself
+  ).map {|_, values|
     # valuesには、同じ場所にくるパターンが個数分入ってるので、これが奇数なら黒の数
     values.size.odd? ? 1 : 0
   }.sum
