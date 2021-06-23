@@ -14,25 +14,6 @@ def input_stdin_or(file)
 end
 
 
-$reduce_mappings = {
-  %i[ne se] => [:e],
-  %i[ne w] => [:nw],
-  %i[e nw] => [:ne],
-  %i[e sw] => [:se],
-  %i[se ne] => [:e],
-  %i[se w] => [:sw],
-  %i[sw e] => [:se],
-  %i[sw nw] => [:w],
-  %i[w se] => [:sw],
-  %i[w ne] => [:nw],
-  %i[nw sw] => [:w],
-  %i[nw e] => [:ne],
-}
-
-def reduce_move(moves)
-  $reduce_mappings[moves]
-end
-
 def read_data
   dirs_regexp = /e|se|sw|w|nw|ne/
   input_stdin_or("./day24.dat") do |f|
@@ -44,30 +25,6 @@ def read_data
       end
       dirs.map(&:to_sym)
     end
-  end
-end
-
-def normalize(moves)
-  return [] if moves == [nil]
-  # p [:moves, moves]
-  first, second, *rest = moves
-  result = reduce_move([first, second])
-  if result
-    normalize(result + rest)
-  else
-    [first] + normalize([second] + rest)
-  end
-end
-
-def normalize_list(move_list)
-  move_list.map do |moves|
-    tmp = moves
-    loop do
-      tmp2 = normalize(tmp)
-      break if tmp2 == tmp
-      tmp = tmp2
-    end
-    tmp
   end
 end
 
