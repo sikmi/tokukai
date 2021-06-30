@@ -18,11 +18,15 @@ def read_data
   end
 end
 
+def calc(subject_number, val)
+  (subject_number * val) % 20201227
+end
+
 def secret_loop_size(subject_number, key)
   c = 0
   val = 1
   while val != key
-    val = (subject_number * val) % 20201227
+    val = calc(subject_number, val)
     c += 1
   end
   c
@@ -31,7 +35,7 @@ end
 def encription_key(subject_number, count)
   val = 1
   count.times do
-    val = (subject_number * val) % 20201227
+    val = calc(subject_number, val)
   end
   val
 end
