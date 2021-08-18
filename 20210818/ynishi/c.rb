@@ -57,7 +57,7 @@ def solve(start, goal, board)
     s = queue.shift
 
     if s.pos == goal
-      return s.count_step
+      return s
     else
       generate_next_pos_list(s.pos).each do |r, c|
         pos = [r, c]
@@ -73,6 +73,27 @@ def solve(start, goal, board)
   raise 'no answer'
 end
 
+def extract_pos_list(state)
+  if state.prev
+    [state.pos] + extract_pos_list(state.prev)
+  else
+    [state.pos]
+  end
+end
+
+def dump_route(board, state)
+  pos_list = extract_pos_list(state)
+  b = board.map(&:dup)
+
+  pos_list.each do |r, c|
+    b[r - 1][c - 1] = '@'
+  end
+
+  b.map { |row|
+    row.join
+  }.join("\n")
+end
+
 def main
   start, goal, board = load_maze
   # p [:start, start]
@@ -85,7 +106,9 @@ def main
   # puts "--------------------------"
   # puts dump_board(goal, board)
   # puts 
-  p solve(start, goal, board)
+  s = solve(start, goal, board)
+  # puts dump_route(board, s)
+  p s.count_step
 end
 
 main
