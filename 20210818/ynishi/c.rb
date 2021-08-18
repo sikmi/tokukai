@@ -85,8 +85,16 @@ def dump_route(board, state)
   pos_list = extract_pos_list(state)
   b = board.map(&:dup)
 
-  pos_list.each do |r, c|
-    b[r - 1][c - 1] = '@'
+  pos_list.each_with_index do |(r, c), i|
+    mark = case i
+           when 0
+             'G'
+           when pos_list.size - 1
+             'S'
+           else
+             '@'
+           end
+    b[r - 1][c - 1] = mark
   end
 
   b.map { |row|
