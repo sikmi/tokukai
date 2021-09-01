@@ -3,7 +3,7 @@ def mother(i)
 end
 
 def granma(i)
-    return (((((i+1)/3).to_i)+1)/3).to_i
+    return mother(mother(i))
 end
 
 def zokugara(input)
