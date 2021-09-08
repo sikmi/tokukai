@@ -1,3 +1,4 @@
+# 各レールパネルの各線路から次にいける線路へのマッピング情報
 $rails = {
   1 => {
     0 => [0, 1],
@@ -86,16 +87,20 @@ def try_checks
   test( "697535114542", "ac" );
 end
 
+# 実際にいけるかどうかチェックする
 def solve_helper(cur, rest, pos)
   # p [:args, cur, rest, pos, rest.empty?]
   if rest.empty? && !$rails[cur][pos].empty?
+    # 次にパネルがなく、かつ、そのパネルの立ち位置から先にいける状態ならOK
     return true
   else
     new_cur, *new_rest = rest
     # p [:candidates, $rails[cur][pos]]
+    # 候補を順にためしていけるだけいく
     $rails[cur][pos].each do |next_pos|
       # p [:step, "rail: #{cur}, #{pos} -> #{next_pos}"]
       if solve_helper(new_cur, new_rest, next_pos)
+        # もこのルートでいけたならOKなのでtrueで返す
         return true
       end
     end
