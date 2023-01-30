@@ -1,12 +1,12 @@
 def check_song_finished(songs, index, start, target)
-  current = songs.rotate(index).first
+  current = songs[index]
   finish = start + current
 
   if finish > target
     return index + 1, target - start
   end
 
-  check_song_finished(songs, index +1, finish, target)
+  check_song_finished(songs, (index + 1) % songs.length, finish, target)
 end
 
 def main
@@ -19,12 +19,17 @@ end
 print main
 
 # 出力結果
-# $ ruby part_c.rb                                                                                                                                                        [main]
+# $ ruby part_c_rec.rb                                                                                                                           +[main]
+# 3 600
+# 180 240 120
+# [1, 60]
+
+# $ ruby part_c_rec.rb                                                                                                                                                        [main]
 # 3 281
 # 94 94 94
 # [3, 93]
 
-# $ ruby part_c.rb                                                                                                                                                        [main]
+# $ ruby part_c_rec.rb                                                                                                                                                        [main]
 # 10 5678912340
 # 1000000000 1000000000 1000000000 1000000000 1000000000 1000000000 1000000000 1000000000 1000000000 1000000000
 # [6, 678912340]
