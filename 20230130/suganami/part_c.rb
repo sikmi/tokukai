@@ -13,7 +13,7 @@ def calc(song_seconds_array, target_second)
     this_song_finished_seconds = total_second + this_song_length
 
     if target_second < this_song_finished_seconds
-      break (i + 1), target_second - total_second
+      break i % song_counts + 1, target_second - total_second
     end
  
     total_second += this_song_length
@@ -21,10 +21,10 @@ def calc(song_seconds_array, target_second)
 end
 
 def main
-  pp circlar_playlist
+  circlar_playlist
 end
 
-main
+puts main.join(" ")
 
 # 出力結果
 # $ ruby part_c.rb                                                                                                                                                        [main]

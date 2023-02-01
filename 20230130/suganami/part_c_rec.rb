@@ -16,7 +16,7 @@ def main
   check_song_finished(songs, 0, 0, target)
 end
 
-print main
+puts main.join(" ")
 
 # 出力結果
 # $ ruby part_c_rec.rb                                                                                                                           +[main]
